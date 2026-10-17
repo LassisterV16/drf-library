@@ -6,6 +6,7 @@ django-stubs==6.1.2
 django-stubs-ext==6.1.2
 djangorestframework==3.18.3
 djangorestframework-stubs==3.18.1
+djangorestframework_simplejwt==5.5.1
 mypy_extensions==1.1.0
 packaging==26.3
 pathspec==1.1.1
