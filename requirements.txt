@@ -3,6 +3,7 @@ attrs==26.1.0
 black==26.10.1
 click==8.5.0
 Django==6.1.2
+django-debug-toolbar==8.0.0
 django-stubs==6.1.2
 django-stubs-ext==6.1.2
 djangorestframework==3.18.3
