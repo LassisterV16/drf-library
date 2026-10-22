@@ -1,3 +1,6 @@
+from typing import Any
+
+from django.db import transaction
 from rest_framework import serializers
 
 from books.serializers import BookSerializer
@@ -14,6 +17,24 @@ class BorrowingSerializer(serializers.ModelSerializer):
             "book",
             "user",
         )
+        read_only_fields = ("id", "user")
+
+    def validate(self, attrs: Any) -> Any:
+        if self.instance is None:
+            book = attrs.get("book")
+            if book.inventory == 0:
+                raise serializers.ValidationError(
+                    {"book": "This book is out of stock."}
+                )
+        return attrs
+
+    def create(self, validated_data: Any):
+        with transaction.atomic():
+            book = validated_data.get("book")
+            borrowing = Borrowing.objects.create(**validated_data)
+            book.inventory -= 1
+            book.save()
+            return borrowing
 
 
 class BorrowingUpdateSerializer(BorrowingSerializer):
