@@ -11,12 +11,13 @@ from borrowings.serializers import (
 
 
 class BorrowingViewSet(viewsets.ModelViewSet):
-    queryset = Borrowing.objects.select_related("book", "user")
+    queryset = Borrowing.objects.all()
     serializer_class = BorrowingSerializer
     permission_classes = (IsAdminOrOwner,)
 
     def get_queryset(self):
         queryset = self.queryset
+        queryset = Borrowing.objects.select_related("book", "user")
 
         if not self.request.user.is_staff:
             queryset = queryset.filter(user=self.request.user)
