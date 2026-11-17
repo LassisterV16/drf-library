@@ -1,5 +1,7 @@
 from django.conf import settings
-from django.db import models
+from django.db import models, transaction
+from django.utils import timezone
+from rest_framework.exceptions import ValidationError
 
 from books.models import Book
 
@@ -15,3 +17,17 @@ class Borrowing(models.Model):
 
     class Meta:
         ordering = ["id"]
+
+    def __str__(self) -> str:
+        return f"{self.user.full_name}: {self.book.title} ({self.borrow_date})"
+
+    def return_book(self):
+        with transaction.atomic():
+            if self.actual_return_date is not None:
+                raise ValidationError("This borrowing has already been returned.")
+
+            self.actual_return_date = timezone.now()
+            self.save()
+
+            self.book.inventory += 1
+            self.book.save()
