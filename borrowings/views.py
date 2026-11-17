@@ -1,4 +1,7 @@
-from rest_framework import viewsets
+from drf_spectacular.utils import extend_schema, OpenApiResponse
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from borrowings.models import Borrowing
 from borrowings.permissions import IsAdminOrOwner
@@ -16,11 +19,19 @@ class BorrowingViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAdminOrOwner,)
 
     def get_queryset(self):
-        queryset = self.queryset
         queryset = Borrowing.objects.select_related("book", "user")
+
+        is_active = self.request.query_params.get("is_active")
+        user_id = self.request.query_params.get("user_id")
 
         if not self.request.user.is_staff:
             queryset = queryset.filter(user=self.request.user)
+
+        if is_active:
+            queryset = queryset.filter(actual_return_date=None)
+
+        if user_id and self.request.user.is_staff:
+            queryset = queryset.filter(user=user_id)
 
         return queryset
 
